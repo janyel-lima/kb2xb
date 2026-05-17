@@ -842,7 +842,7 @@ class AboutDialog(QDialog):
         desc.setAlignment(Qt.AlignCenter)
 
         link = QLabel(
-            "<a style='color:#58a6ff' href='https://github.com/yourname/kb2xb'>"
+            "<a style='color:#58a6ff' href='https://github.com/janyel-lima/kb2xb'>"
             "github.com/yourname/kb2xb</a>"
         )
         link.setOpenExternalLinks(True)

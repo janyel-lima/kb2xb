@@ -14,6 +14,7 @@ Maps any keyboard (and optionally a mouse) to a virtual Xbox One controller that
 - **CLI** — headless, scriptable, terminal-friendly
 - **Zero root at runtime** — one-time udev/group setup, then runs as a normal user
 - **Wayland & X11** — reads raw evdev events, no display server involvement
+- **Shell completions** — bash, zsh, and fish
 
 ---
 
@@ -30,10 +31,38 @@ Maps any keyboard (and optionally a mouse) to a virtual Xbox One controller that
 
 ## Installation
 
-### One-command install (Arch / CachyOS)
+### AUR (Arch / CachyOS — recommended)
 
 ```bash
-git clone https://github.com/yourname/kb2xb
+yay -S kb2xb
+# or
+paru -S kb2xb
+```
+
+After install, add your user to the required groups and re-login:
+
+```bash
+sudo groupadd -f uinput
+sudo usermod -aG input,uinput $USER
+# Re-login or reboot required
+```
+
+> **Note:** if you previously installed `python-uinput` via pip, remove it first or
+> pacman will refuse to install the AUR package due to conflicting files:
+>
+> ```bash
+> sudo rm -rf \
+>   /usr/lib/python3*/site-packages/uinput \
+>   /usr/lib/python3*/site-packages/_libsuinput*.so \
+>   /usr/lib/python3*/site-packages/python_uinput-*.dist-info
+> ```
+
+---
+
+### One-command install from source (Arch / CachyOS)
+
+```bash
+git clone https://github.com/janyel-lima/kb2xb
 cd kb2xb
 chmod +x install.sh
 ./install.sh
@@ -41,7 +70,7 @@ chmod +x install.sh
 
 The script:
 
-1. Installs `python-evdev` and `python-pyside6` via pacman
+1. Installs `python-evdev` and `pyside6` via pacman
 2. Installs `python-uinput` via your AUR helper (yay or paru)
 3. Loads the `uinput` kernel module and makes it persistent
 4. Writes a udev rule so `/dev/uinput` is accessible to the `uinput` group
@@ -309,6 +338,10 @@ cp ~/.local/share/applications/kb2xb.desktop ~/.config/autostart/
 Or use a systemd user unit for the CLI (no GUI, always-on):
 
 ```bash
+# AUR install — the unit is already installed, just enable it:
+systemctl --user enable --now kb2xb
+
+# Source install — create the unit manually:
 mkdir -p ~/.config/systemd/user
 cat > ~/.config/systemd/user/kb2xb.service << 'EOF'
 [Unit]
@@ -373,6 +406,19 @@ The evdev reader bypasses Wayland's input capture. It reads directly from `/dev/
 
 Disable Steam's built-in keyboard-to-gamepad mapping in **Steam → Settings → Controller → Desktop configuration** (set it to "None").
 
+### AUR install fails — conflicting files from pip
+
+If you previously ran `kb2xb.py` directly before installing via the AUR, the bootstrap may have installed `python-uinput` via pip into the system site-packages. Pacman cannot overwrite those files. Remove them first:
+
+```bash
+sudo rm -rf \
+  /usr/lib/python3*/site-packages/uinput \
+  /usr/lib/python3*/site-packages/_libsuinput*.so \
+  /usr/lib/python3*/site-packages/python_uinput-*.dist-info
+```
+
+Then retry `paru -S kb2xb`.
+
 ### Icon not updating in KDE launcher
 
 KDE caches app icons separately from GTK. If the old icon persists after reinstalling:
@@ -396,12 +442,22 @@ kb2xb/                          ← project source
     kb2xb_gui.py
     icon.svg                    ← source icon (installed as kb2xb.svg)
     kb2xb.desktop
+    kb2xb.install               ← pacman post-install hooks
+    PKGBUILD
     install.sh
     uninstall.sh
+    completions/
+        kb2xb.bash
+        _kb2xb
+        kb2xb.fish
 
-~/.local/share/kb2xb/
+~/.local/share/kb2xb/           ← source install only
     kb2xb.py                    ← CLI engine (standalone)
     kb2xb_gui.py                ← PySide6 GUI
+
+/usr/share/kb2xb/               ← AUR install
+    kb2xb.py
+    kb2xb_gui.py
 
 ~/.config/kb2xb/
     settings.json               ← last profile, preferred keyboards
@@ -416,14 +472,28 @@ kb2xb/                          ← project source
 ~/.local/share/applications/
     kb2xb.desktop               ← Name=Kb2Xb
 
-~/.local/bin/
+~/.local/bin/                   ← source install
     kb2xb                       ← CLI launcher
     kb2xb-gui                   ← GUI launcher
+
+/usr/bin/                       ← AUR install
+    kb2xb
+    kb2xb-gui
 ```
 
 ---
 
 ## Uninstall
+
+### AUR install
+
+```bash
+paru -R kb2xb
+# Profiles at ~/.config/kb2xb/ are NOT removed — delete manually if needed:
+rm -rf ~/.config/kb2xb
+```
+
+### Source install
 
 ```bash
 chmod +x uninstall.sh
