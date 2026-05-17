@@ -3,12 +3,12 @@
 kb2xb — Keyboard + Mouse → Xbox One virtual gamepad
          evdev/uinput · Wayland & X11 · profile-based
 
-https://github.com/yourname/kb2xb
+https://github.com/janyel-lima/kb2xb
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"
-__author__  = "yourname"
+__version__ = "1.0.1"
+__author__  = "Janyel Lima"
 __license__ = "MIT"
 
 # ── Dependency bootstrap ────────────────────────────────────────────────────
