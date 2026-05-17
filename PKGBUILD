@@ -26,7 +26,7 @@ backup=()
 install=kb2xb.install
 
 source=("$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz")
-sha256sums=('SKIP')    # Replace with actual SHA256 before AUR submission:
+sha256sums=('5438fe792772fc3d775d2e80dfc0743fd6bfb045382739ea8959f8eff58295a3')
                        #   updpkgsums   or   makepkg -g >> PKGBUILD
 
 # ─────────────────────────────────────────────────────────────────────────────

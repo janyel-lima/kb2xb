@@ -1,0 +1,50 @@
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# ── Virtual environment (created by kb2xb's own bootstrap) ───────────────────
+.kb2xb-venv/
+venv/
+.venv/
+env/
+
+# ── Build / packaging ─────────────────────────────────────────────────────────
+*.egg-info/
+dist/
+build/
+*.egg
+MANIFEST
+
+# ── makepkg artefacts ─────────────────────────────────────────────────────────
+pkg/
+src/
+*.pkg.tar.zst
+*.pkg.tar.xz
+*.tar.gz
+*.tar.bz2
+
+# ── User config & profiles (never committed) ──────────────────────────────────
+settings.json
+profiles/
+
+# ── Install backups created by install.sh ─────────────────────────────────────
+*.bak.*
+
+# ── Editor / IDE ──────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.Trash-*
+.nfs*
