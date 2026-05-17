@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Name=Kb2Xb
+GenericName=Keyboard to Xbox Controller
+Comment=Map keyboard and mouse to a virtual Xbox One gamepad
+Exec=kb2xb-gui
+Icon=kb2xb
+Terminal=false
+Type=Application
+Categories=Game;Utility;
+Keywords=gamepad;controller;keyboard;mouse;xbox;uinput;evdev;emulator;
+StartupNotify=true
+StartupWMClass=kb2xb
