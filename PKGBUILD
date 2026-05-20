@@ -26,7 +26,7 @@ backup=()
 install=kb2xb.install
 
 source=("$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz")
-sha256sums=('78a3fe454ffd5695a511abd0d2a44377e80dff2927d55cb1d1b78afbf24a86e0')
+sha256sums=('1f2a3b2b5bab6c9477abcd25c5135b85f322d0cfde94de75dc4ede539cdfeb2b')
                        #   updpkgsums   or   makepkg -g >> PKGBUILD
 
 # ─────────────────────────────────────────────────────────────────────────────
