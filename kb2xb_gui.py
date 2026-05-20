@@ -441,14 +441,89 @@ QSplitter::handle { background: #18182c; }
 # ─────────────────────────────────────────────────────────────────────────────
 #  Helpers
 # ─────────────────────────────────────────────────────────────────────────────
-def _dot_icon(color: str, size: int = 20) -> QIcon:
+def _load_app_icon() -> Optional[QPixmap]:
+    """Load kb2xb.svg from the XDG icon theme or alongside this script."""
+    # 1. Qt theme lookup (works after gtk-update-icon-cache / kbuildsycoca6)
+    themed = QIcon.fromTheme("kb2xb")
+    if not themed.isNull():
+        pm = themed.pixmap(64, 64)
+        if not pm.isNull():
+            return pm
+
+    # 2. Fallback: look next to this script (dev/source-install)
+    candidates = [
+        Path(__file__).with_name("icon.svg"),
+        Path(__file__).with_name("kb2xb.svg"),
+        Path.home() / ".local/share/icons/hicolor/scalable/apps/kb2xb.svg",
+        Path("/usr/share/icons/hicolor/scalable/apps/kb2xb.svg"),
+        Path("/usr/share/kb2xb/icon.svg"),
+    ]
+    for p in candidates:
+        if p.exists():
+            pm = QPixmap(str(p))
+            if not pm.isNull():
+                return pm.scaled(64, 64, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+
+    return None
+
+
+# Cache the app pixmap so we don't reload on every status change
+_APP_ICON_PM: Optional[QPixmap] = None
+
+
+def _tray_icon(status: str) -> QIcon:
+    """
+    Return a tray icon using the kb2xb app icon as base with a small
+    status dot overlaid in the bottom-right corner.
+      status: 'stopped' | 'running' | 'swapping' | 'error'
+    """
+    global _APP_ICON_PM
+
+    dot_colors = {
+        "stopped":  "#475569",
+        "running":  "#86efac",
+        "swapping": "#fbbf24",
+        "error":    "#f87171",
+    }
+    dot_color = dot_colors.get(status, "#475569")
+
+    size = 64
+
+    if _APP_ICON_PM is None:
+        _APP_ICON_PM = _load_app_icon()
+
     pm = QPixmap(size, size)
     pm.fill(Qt.transparent)
+
     p = QPainter(pm)
     p.setRenderHint(QPainter.Antialiasing)
-    p.setBrush(QColor(color))
+    p.setRenderHint(QPainter.SmoothPixmapTransform)
+
+    if _APP_ICON_PM is not None:
+        # Draw app icon scaled to full size
+        p.drawPixmap(0, 0, _APP_ICON_PM.scaled(
+            size, size, Qt.KeepAspectRatio, Qt.SmoothTransformation
+        ))
+    else:
+        # Fallback: plain circle in violet if icon not found
+        p.setBrush(QColor("#5b21b6"))
+        p.setPen(Qt.NoPen)
+        p.drawEllipse(4, 4, size - 8, size - 8)
+
+    # Status dot — bottom-right corner
+    dot_r = 14
+    dot_x = size - dot_r - 2
+    dot_y = size - dot_r - 2
+
+    # Shadow ring for contrast against any background
+    p.setBrush(QColor(0, 0, 0, 160))
     p.setPen(Qt.NoPen)
-    p.drawEllipse(1, 1, size - 2, size - 2)
+    p.drawEllipse(dot_x - 2, dot_y - 2, dot_r + 4, dot_r + 4)
+
+    # Dot itself
+    p.setBrush(QColor(dot_color))
+    p.drawEllipse(dot_x, dot_y, dot_r, dot_r)
+
     p.end()
     return QIcon(pm)
 
@@ -1251,7 +1326,7 @@ class MainWindow(QMainWindow):
 
     def _build_tray(self) -> None:
         self._tray = QSystemTrayIcon(self)
-        self._tray.setIcon(_dot_icon("#334155"))
+        self._tray.setIcon(_tray_icon("stopped"))
         self._tray.setToolTip("Kb2Xb — stopped")
 
         menu = QMenu()
@@ -1288,20 +1363,24 @@ class MainWindow(QMainWindow):
         self._set_stop(False)
         self._refresh_profile_list_style()
         self._update_primary_btn()
-        self._update_tray(False)
+        self._tray.setIcon(_tray_icon("error"))
+        self._tray.setToolTip("Kb2Xb — error")
+        self._tray_status_action.setText("Error")
 
     def _set_swapping_status(self) -> None:
         self._status_dot.setStyleSheet("color: #fbbf24;")
         self._status_lbl.setText("Swapping profile…")
         self._status_lbl.setStyleSheet("color: #fbbf24; font-size: 12px; font-weight: 600;")
+        self._tray.setIcon(_tray_icon("swapping"))
+        self._tray.setToolTip("Kb2Xb — swapping…")
 
     def _update_tray(self, running: bool, profile_name: str = "") -> None:
         if running:
-            self._tray.setIcon(_dot_icon("#86efac"))
+            self._tray.setIcon(_tray_icon("running"))
             self._tray.setToolTip(f"Kb2Xb — {profile_name}")
             self._tray_status_action.setText(f"Running: {profile_name}")
         else:
-            self._tray.setIcon(_dot_icon("#334155"))
+            self._tray.setIcon(_tray_icon("stopped"))
             self._tray.setToolTip("Kb2Xb — stopped")
             self._tray_status_action.setText("Stopped")
 
