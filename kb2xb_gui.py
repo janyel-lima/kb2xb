@@ -5,7 +5,7 @@ kb2xb_gui.py  —  PySide6 front-end for the kb2xb engine.
 Place this file alongside kb2xb.py.
 
 Dependencies (Arch / CachyOS):
-  sudo pacman -S python-pyside6 python-evdev
+  sudo pacman -S pyside6 python-evdev
   yay  -S python-uinput
 
 Run:
@@ -105,227 +105,337 @@ _QT_TO_NAME: dict[int, str] = {
 #  Stylesheet  (GitHub dark theme palette)
 # ─────────────────────────────────────────────────────────────────────────────
 _STYLE = """
-QWidget {
-    background: #0d1117;
-    color: #c9d1d9;
-    font-size: 13px;
-}
-QMainWindow, QDialog { background: #0d1117; }
+/* ══════════════════════════════════════════════════════════════════════
+   Kb2Xb · Arcana Theme · CachyOS KDE Plasma
+   Palette:
+     Void     #0a0a11  #0e0e1a  #12121f  #18182c
+     Border   #1e1e38  #2c2c50  #6e5bdf (glow)
+     Violet   #4c1d95  #5b21b6  #7c3aed  #8b5cf6  #a78bfa  #c4b5fd
+     Cyan     #67e8f9
+     Green    #86efac
+     Red      #f87171
+     Amber    #fbbf24
+     Text     #e2e8f0  #cbd5e1  #94a3b8  #475569
+   ══════════════════════════════════════════════════════════════════════ */
 
+* { outline: none; }
+
+QWidget {
+    background: #0a0a11;
+    color: #e2e8f0;
+    font-size: 13px;
+    font-family: "Noto Sans", "Inter", "Segoe UI", sans-serif;
+}
+
+QMainWindow, QDialog { background: #0a0a11; }
+
+/* ── GroupBox ─────────────────────────────────────────────────────────── */
 QGroupBox {
-    border: 1px solid #30363d;
-    border-radius: 6px;
-    margin-top: 1.1em;
-    padding-top: 10px;
-    font-weight: 700;
-    color: #58a6ff;
-    font-size: 12px;
-    letter-spacing: 0.5px;
+    border: 1px solid #1e1e38;
+    border-radius: 9px;
+    margin-top: 1.3em;
+    padding-top: 14px;
+    font-weight: 800;
+    color: #8b5cf6;
+    font-size: 10px;
+    letter-spacing: 1.5px;
 }
 QGroupBox::title {
     subcontrol-origin: margin;
-    left: 10px;
-    padding: 0 5px;
+    left: 14px;
+    padding: 0 8px;
+    background: #0a0a11;
 }
 
+/* ── List ─────────────────────────────────────────────────────────────── */
 QListWidget {
-    background: #161b22;
-    border: 1px solid #30363d;
-    border-radius: 6px;
+    background: #0e0e1a;
+    border: 1px solid #1e1e38;
+    border-radius: 9px;
     outline: none;
-    padding: 4px;
+    padding: 5px;
 }
 QListWidget::item {
-    padding: 7px 10px;
-    border-radius: 4px;
+    padding: 9px 14px;
+    border-radius: 6px;
     margin: 1px 0;
+    color: #cbd5e1;
 }
 QListWidget::item:selected {
-    background: #1f6feb;
-    color: #ffffff;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #3b0764, stop:1 #4c1d95);
+    color: #ede9fe;
+    border: 1px solid #5b21b6;
 }
-QListWidget::item:hover:!selected { background: #1c2128; }
+QListWidget::item:hover:!selected {
+    background: #14142a;
+    color: #e2e8f0;
+}
 
+/* ── Default Button ───────────────────────────────────────────────────── */
 QPushButton {
-    background: #21262d;
-    border: 1px solid #30363d;
-    border-radius: 6px;
-    padding: 5px 14px;
-    color: #c9d1d9;
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #1a1a30, stop:1 #121224);
+    border: 1px solid #2c2c50;
+    border-radius: 7px;
+    padding: 5px 16px;
+    color: #b0bac8;
     min-height: 28px;
 }
-QPushButton:hover   { background: #30363d; border-color: #8b949e; color: #fff; }
-QPushButton:pressed { background: #1f6feb; border-color: #1f6feb; color: #fff; }
-QPushButton:disabled { color: #484f58; border-color: #21262d; background: #161b22; }
+QPushButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #252548, stop:1 #1a1a38);
+    border-color: #6e5bdf;
+    color: #ede9fe;
+}
+QPushButton:pressed {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #4c1d95, stop:1 #3b0764);
+    border-color: #8b5cf6;
+    color: #fff;
+}
+QPushButton:disabled {
+    color: #334155;
+    border-color: #151528;
+    background: #0c0c18;
+}
 
-/* ── Primary action: START / HOTSWAP / RUNNING (driven by `mode` property) ── */
+/* ── Primary btn: base ────────────────────────────────────────────────── */
 QPushButton#btn_primary {
-    font-size: 15px;
-    font-weight: 700;
-    min-height: 52px;
-    border-radius: 8px;
-    letter-spacing: 1px;
+    font-size: 13px;
+    font-weight: 800;
+    min-height: 58px;
+    border-radius: 10px;
+    letter-spacing: 2.5px;
+    padding: 0 24px;
     color: #ffffff;
 }
-QPushButton#btn_primary[mode="start"] {
-    background: #1a7f37;
-    border-color: #238636;
-}
-QPushButton#btn_primary[mode="start"]:hover   { background: #238636; border-color: #3fb950; }
-QPushButton#btn_primary[mode="start"]:pressed { background: #196c2e; }
 
-QPushButton#btn_primary[mode="hotswap"] {
-    background: #7d4e00;
-    border-color: #d29922;
-}
-QPushButton#btn_primary[mode="hotswap"]:hover   { background: #bb8009; border-color: #e3b341; }
-QPushButton#btn_primary[mode="hotswap"]:pressed { background: #5a3700; }
-
-QPushButton#btn_primary[mode="running"] {
-    background: #161b22;
-    border-color: #21262d;
-    color: #484f58;
-    letter-spacing: 0.5px;
-}
-
-/* ── Stop ── */
+/* ── STOP button — styled via setStyleSheet() in code ────────────────── */
 QPushButton#btn_stop {
-    background: #6e1117;
-    border-color: #b62324;
-    color: #ffffff;
-    font-size: 15px;
-    font-weight: 700;
-    min-height: 52px;
-    border-radius: 8px;
-    letter-spacing: 1px;
+    font-size: 13px;
+    font-weight: 800;
+    min-height: 58px;
+    border-radius: 10px;
+    letter-spacing: 2.5px;
+    padding: 0 24px;
 }
-QPushButton#btn_stop:hover   { background: #b62324; border-color: #ff7b72; }
-QPushButton#btn_stop:pressed { background: #5c0a10; }
-QPushButton#btn_stop:disabled { background: #161b22; border-color: #21262d; color: #484f58; }
 
-/* ── Key-capture buttons ── */
+/* ── Key-capture button ───────────────────────────────────────────────── */
 QPushButton#btn_capture {
-    background: #0d1117;
-    border: 1px dashed #30363d;
-    border-radius: 4px;
-    font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+    background: #0e0e1a;
+    border: 1px dashed #2c2c50;
+    border-radius: 6px;
+    font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
     font-size: 12px;
-    padding: 3px 10px;
-    min-width: 90px;
-    color: #79c0ff;
-    min-height: 24px;
+    padding: 3px 12px;
+    min-width: 96px;
+    color: #67e8f9;
+    min-height: 26px;
 }
-QPushButton#btn_capture:hover { background: #161b22; border-color: #58a6ff; }
+QPushButton#btn_capture:hover {
+    background: #12122a;
+    border-style: solid;
+    border-color: #8b5cf6;
+    color: #a78bfa;
+}
 QPushButton#btn_capture[capturing="true"] {
     border-style: solid;
-    border-color: #f78166;
-    color: #f78166;
-    background: #160c07;
+    border-color: #f87171;
+    color: #f87171;
+    background: #1a0a0a;
 }
 
-/* ── Small toolbar buttons ── */
+/* ── Small toolbar button ─────────────────────────────────────────────── */
 QPushButton#btn_sm {
-    background: #21262d;
-    border: 1px solid #30363d;
-    border-radius: 5px;
-    padding: 3px 10px;
-    min-height: 24px;
-    font-size: 12px;
-}
-QPushButton#btn_sm:hover   { background: #30363d; color: #fff; }
-QPushButton#btn_sm:pressed { background: #1f6feb; border-color: #1f6feb; }
-QPushButton#btn_sm:disabled { color: #484f58; border-color: #21262d; background: #161b22; }
-
-QLineEdit, QSpinBox {
-    background: #161b22;
-    border: 1px solid #30363d;
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #1a1a30, stop:1 #121224);
+    border: 1px solid #2c2c50;
     border-radius: 6px;
-    padding: 4px 8px;
-    color: #c9d1d9;
-    min-height: 28px;
-    selection-background-color: #1f6feb;
+    padding: 3px 12px;
+    min-height: 26px;
+    font-size: 12px;
+    color: #94a3b8;
 }
-QLineEdit:focus, QSpinBox:focus { border-color: #58a6ff; }
-QSpinBox::up-button, QSpinBox::down-button { width: 18px; }
+QPushButton#btn_sm:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #252548, stop:1 #1a1a38);
+    border-color: #6e5bdf;
+    color: #ede9fe;
+}
+QPushButton#btn_sm:pressed {
+    background: #3b0764;
+    border-color: #8b5cf6;
+    color: #fff;
+}
+QPushButton#btn_sm:disabled {
+    color: #334155;
+    border-color: #151528;
+    background: #0c0c18;
+}
 
+/* ── Line edit / Spin box ─────────────────────────────────────────────── */
+QLineEdit, QSpinBox {
+    background: #0e0e1a;
+    border: 1px solid #2c2c50;
+    border-radius: 7px;
+    padding: 4px 10px;
+    color: #e2e8f0;
+    min-height: 30px;
+    selection-background-color: #4c1d95;
+    selection-color: #ede9fe;
+}
+QLineEdit:hover, QSpinBox:hover { border-color: #3d3d70; }
+QLineEdit:focus, QSpinBox:focus {
+    border-color: #7c3aed;
+    background: #10101f;
+}
+QSpinBox::up-button, QSpinBox::down-button {
+    width: 20px;
+    border: none;
+    background: #1e1e38;
+    border-radius: 3px;
+}
+QSpinBox::up-button:hover, QSpinBox::down-button:hover { background: #2c2c50; }
+
+/* ── Slider ───────────────────────────────────────────────────────────── */
 QSlider::groove:horizontal {
     height: 4px;
-    background: #30363d;
+    background: #1e1e38;
     border-radius: 2px;
 }
 QSlider::handle:horizontal {
-    width: 14px; height: 14px;
-    margin: -5px 0;
-    background: #58a6ff;
-    border-radius: 7px;
-    border: none;
+    width: 16px;
+    height: 16px;
+    margin: -6px 0;
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #a78bfa, stop:1 #7c3aed);
+    border-radius: 8px;
+    border: 2px solid #0a0a11;
 }
-QSlider::sub-page:horizontal { background: #1f6feb; border-radius: 2px; }
+QSlider::handle:horizontal:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #c4b5fd, stop:1 #a78bfa);
+}
+QSlider::sub-page:horizontal {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #4c1d95, stop:1 #7c3aed);
+    border-radius: 2px;
+}
 
+/* ── Tabs ─────────────────────────────────────────────────────────────── */
 QTabWidget::pane {
-    border: 1px solid #30363d;
-    border-radius: 0 6px 6px 6px;
-    background: #161b22;
+    border: 1px solid #1e1e38;
+    border-radius: 0 9px 9px 9px;
+    background: #0e0e1a;
     top: -1px;
 }
 QTabBar::tab {
-    background: #0d1117;
-    border: 1px solid #30363d;
+    background: #0a0a11;
+    border: 1px solid #1e1e38;
     border-bottom: none;
-    padding: 7px 18px;
-    color: #8b949e;
-    border-radius: 6px 6px 0 0;
+    padding: 8px 22px;
+    color: #475569;
+    border-radius: 7px 7px 0 0;
     margin-right: 3px;
     font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
 }
-QTabBar::tab:selected { background: #161b22; color: #c9d1d9; border-bottom: 1px solid #161b22; }
-QTabBar::tab:hover:!selected { color: #c9d1d9; background: #1c2128; }
+QTabBar::tab:selected {
+    background: #0e0e1a;
+    color: #a78bfa;
+    border-color: #2c2c50;
+    border-bottom: 1px solid #0e0e1a;
+}
+QTabBar::tab:hover:!selected {
+    color: #c4b5fd;
+    background: #10101e;
+    border-color: #2c2c50;
+}
 
-QCheckBox { spacing: 8px; }
+/* ── Checkbox ─────────────────────────────────────────────────────────── */
+QCheckBox { spacing: 10px; color: #cbd5e1; }
 QCheckBox::indicator {
-    width: 16px; height: 16px;
-    border: 1px solid #30363d;
-    border-radius: 3px;
-    background: #161b22;
+    width: 17px;
+    height: 17px;
+    border: 1px solid #2c2c50;
+    border-radius: 5px;
+    background: #0e0e1a;
 }
-QCheckBox::indicator:checked { background: #1f6feb; border-color: #1f6feb; }
-QCheckBox::indicator:hover   { border-color: #58a6ff; }
+QCheckBox::indicator:checked {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #7c3aed, stop:1 #4c1d95);
+    border-color: #8b5cf6;
+}
+QCheckBox::indicator:hover { border-color: #7c3aed; }
 
+/* ── Scrollbars ───────────────────────────────────────────────────────── */
 QScrollBar:vertical {
-    width: 8px; background: transparent; border-radius: 4px; margin: 2px;
+    width: 6px;
+    background: transparent;
+    border-radius: 3px;
+    margin: 2px;
 }
 QScrollBar::handle:vertical {
-    background: #30363d; border-radius: 4px; min-height: 24px;
+    background: #2c2c50;
+    border-radius: 3px;
+    min-height: 28px;
 }
-QScrollBar::handle:vertical:hover { background: #484f58; }
+QScrollBar::handle:vertical:hover { background: #5b21b6; }
 QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }
-QScrollBar:horizontal { height: 8px; background: transparent; }
-QScrollBar::handle:horizontal { background: #30363d; border-radius: 4px; min-width: 24px; }
+QScrollBar:horizontal { height: 6px; background: transparent; }
+QScrollBar::handle:horizontal {
+    background: #2c2c50;
+    border-radius: 3px;
+    min-width: 28px;
+}
+QScrollBar::handle:horizontal:hover { background: #5b21b6; }
 QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal { width: 0; }
 
-QFrame[frameShape="4"], QFrame[frameShape="5"] { color: #21262d; }
+/* ── Separator lines ──────────────────────────────────────────────────── */
+QFrame[frameShape="4"], QFrame[frameShape="5"] { color: #18182c; }
 
+/* ── Context menu ─────────────────────────────────────────────────────── */
 QMenu {
-    background: #161b22;
-    border: 1px solid #30363d;
-    border-radius: 6px;
-    padding: 4px;
+    background: #10101e;
+    border: 1px solid #2c2c50;
+    border-radius: 9px;
+    padding: 5px;
 }
-QMenu::item { padding: 6px 20px; border-radius: 4px; }
-QMenu::item:selected { background: #1f6feb; color: #fff; }
-QMenu::separator { height: 1px; background: #30363d; margin: 4px 8px; }
+QMenu::item {
+    padding: 8px 22px;
+    border-radius: 5px;
+    color: #cbd5e1;
+    font-size: 13px;
+}
+QMenu::item:selected {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #3b0764, stop:1 #4c1d95);
+    color: #ede9fe;
+}
+QMenu::separator {
+    height: 1px;
+    background: #1e1e38;
+    margin: 5px 10px;
+}
 
-QDialogButtonBox QPushButton { min-width: 80px; }
+/* ── Dialog buttons ───────────────────────────────────────────────────── */
+QDialogButtonBox QPushButton { min-width: 88px; }
 
+/* ── Custom named labels ──────────────────────────────────────────────── */
 QLabel#lbl_dot { font-size: 20px; }
 
 QLabel#lbl_section {
     font-size: 10px;
-    font-weight: 700;
-    color: #8b949e;
-    letter-spacing: 1px;
-    padding: 2px 0 4px 2px;
+    font-weight: 800;
+    color: #4b4b7a;
+    letter-spacing: 2px;
+    padding: 2px 0 6px 2px;
 }
+
+/* ── Splitter ─────────────────────────────────────────────────────────── */
+QSplitter::handle { background: #18182c; }
 """
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -388,7 +498,7 @@ class KeyCaptureButton(QPushButton):
 
     def _start_capture(self) -> None:
         self._set_capturing(True)
-        self.setText("… press a key …")
+        self.setText("⌨  press a key …")
         self.setFocus()
         self.grabKeyboard()
 
@@ -529,9 +639,9 @@ class ProfileEditorDialog(QDialog):
     def __init__(self, profile: Profile, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
         self._profile = profile
-        self.setWindowTitle(f"Edit profile — {profile.display_name}")
-        self.setMinimumWidth(560)
-        self.setMinimumHeight(520)
+        self.setWindowTitle(f"✎  Edit  ·  {profile.display_name}")
+        self.setMinimumWidth(600)
+        self.setMinimumHeight(560)
 
         self._key_btns:       dict[str, KeyCaptureButton] = {}
         self._mouse_widgets:  dict = {}
@@ -539,20 +649,58 @@ class ProfileEditorDialog(QDialog):
         self._opt_widgets:    dict = {}
 
         root = QVBoxLayout(self)
-        root.setContentsMargins(16, 16, 16, 12)
-        root.setSpacing(10)
+        root.setContentsMargins(20, 20, 20, 14)
+        root.setSpacing(14)
 
         tabs = QTabWidget()
-        tabs.addTab(self._make_keymap_tab(),  "Keymap")
-        tabs.addTab(self._make_mouse_tab(),   "Mouse")
-        tabs.addTab(self._make_device_tab(),  "Device")
-        tabs.addTab(self._make_options_tab(), "Options")
+        tabs.addTab(self._make_keymap_tab(),  "⌨  Keymap")
+        tabs.addTab(self._make_mouse_tab(),   "◈  Mouse")
+        tabs.addTab(self._make_device_tab(),  "⬡  Device")
+        tabs.addTab(self._make_options_tab(), "⚙  Options")
         root.addWidget(tabs)
 
+        sep = QFrame(); sep.setFrameShape(QFrame.HLine)
+        root.addWidget(sep)
+
         bb = QDialogButtonBox(QDialogButtonBox.Save | QDialogButtonBox.Cancel)
+        # Style save button green, cancel neutral
+        save_btn   = bb.button(QDialogButtonBox.Save)
+        cancel_btn = bb.button(QDialogButtonBox.Cancel)
+        save_btn.setText("✔  Save")
+        cancel_btn.setText("✕  Cancel")
+        save_btn.setStyleSheet(
+            "QPushButton { background:#15803d; border:1.5px solid #86efac;"
+            " color:#ffffff; font-weight:700; padding:6px 20px; border-radius:7px;}"
+            "QPushButton:hover { background:#16a34a; border-color:#bbf7d0;}"
+            "QPushButton:pressed { background:#166534;}"
+        )
+        cancel_btn.setStyleSheet(
+            "QPushButton { background:#1e1e38; border:1.5px solid #2c2c50;"
+            " color:#94a3b8; font-weight:600; padding:6px 20px; border-radius:7px;}"
+            "QPushButton:hover { background:#252548; color:#e2e8f0;}"
+        )
         bb.accepted.connect(self._on_save)
         bb.rejected.connect(self.reject)
         root.addWidget(bb)
+
+    # ── helpers ───────────────────────────────────────────────────────────────
+
+    @staticmethod
+    def _field_label(text: str) -> QLabel:
+        lbl = QLabel(text)
+        lbl.setStyleSheet("color:#94a3b8; font-size:12px; font-weight:600;")
+        lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        return lbl
+
+    @staticmethod
+    def _hint(text: str) -> QLabel:
+        lbl = QLabel(text)
+        lbl.setWordWrap(True)
+        lbl.setStyleSheet(
+            "color:#4b4b7a; font-size:11px; padding:6px 10px;"
+            "background:#0c0c1a; border-radius:6px; border:1px solid #1e1e38;"
+        )
+        return lbl
 
     def _make_keymap_tab(self) -> QWidget:
         scroll = QScrollArea()
@@ -561,45 +709,46 @@ class ProfileEditorDialog(QDialog):
 
         inner = QWidget()
         vbox  = QVBoxLayout(inner)
-        vbox.setContentsMargins(12, 12, 12, 12)
-        vbox.setSpacing(10)
+        vbox.setContentsMargins(14, 14, 14, 14)
+        vbox.setSpacing(12)
 
         km = self._profile.keymap
 
         groups = [
-            ("Left Stick", [
+            ("⬤  Left Stick", [
                 ("↑  Up",    "ls_up"),   ("↓  Down",  "ls_down"),
                 ("←  Left",  "ls_left"), ("→  Right", "ls_right"),
             ]),
-            ("Right Stick", [
+            ("⬤  Right Stick", [
                 ("↑  Up",    "rs_up"),   ("↓  Down",  "rs_down"),
                 ("←  Left",  "rs_left"), ("→  Right", "rs_right"),
             ]),
-            ("D-Pad", [
+            ("✛  D-Pad", [
                 ("↑  Up",    "dp_up"),   ("↓  Down",  "dp_down"),
                 ("←  Left",  "dp_left"), ("→  Right", "dp_right"),
             ]),
-            ("Face Buttons", [
-                ("A",  "a_btn"), ("B",  "b_btn"),
-                ("X",  "x_btn"), ("Y",  "y_btn"),
+            ("◉  Face Buttons", [
+                ("Ⓐ  A",  "a_btn"), ("Ⓑ  B",  "b_btn"),
+                ("Ⓧ  X",  "x_btn"), ("Ⓨ  Y",  "y_btn"),
             ]),
-            ("Bumpers & Triggers", [
+            ("⊡  Bumpers & Triggers", [
                 ("LB",  "lb"), ("RB",  "rb"),
                 ("LT",  "lt"), ("RT",  "rt"),
             ]),
-            ("Stick Clicks & Menu", [
+            ("⊙  Stick Clicks & Menu", [
                 ("L3",    "l3"),    ("R3",    "r3"),
-                ("Start", "start"), ("View",  "view"),
+                ("Start ▶", "start"), ("View ☰",  "view"),
             ]),
         ]
 
         for group_name, fields in groups:
             gb   = QGroupBox(group_name)
             grid = QGridLayout(gb)
-            grid.setSpacing(6)
+            grid.setSpacing(8)
+            grid.setContentsMargins(12, 16, 12, 12)
             for i, (label, fname) in enumerate(fields):
                 row, col = divmod(i, 2)
-                lbl = QLabel(label)
+                lbl = self._field_label(label)
                 btn = KeyCaptureButton(getattr(km, fname))
                 btn.key_captured.connect(lambda name, f=fname: self._key_btns[f].set_key(name))
                 self._key_btns[fname] = btn
@@ -609,6 +758,10 @@ class ProfileEditorDialog(QDialog):
             grid.setColumnStretch(3, 1)
             vbox.addWidget(gb)
 
+        vbox.addWidget(self._hint(
+            "⌨  Click any key button to enter capture mode, then press the desired key."
+            "  Press Esc to cancel."
+        ))
         vbox.addStretch()
         scroll.setWidget(inner)
         return scroll
@@ -616,14 +769,15 @@ class ProfileEditorDialog(QDialog):
     def _make_mouse_tab(self) -> QWidget:
         w    = QWidget()
         vbox = QVBoxLayout(w)
-        vbox.setContentsMargins(14, 14, 14, 14)
-        vbox.setSpacing(14)
+        vbox.setContentsMargins(16, 16, 16, 16)
+        vbox.setSpacing(16)
         mc   = self._profile.mouse
 
-        for prefix, label in [("ls", "Left Stick"), ("rs", "Right Stick")]:
-            gb   = QGroupBox(f"Mouse → {label}")
+        for prefix, label, icon in [("ls", "Left Stick", "◈  "), ("rs", "Right Stick", "◈  ")]:
+            gb   = QGroupBox(f"{icon}Mouse → {label}")
             form = QFormLayout(gb)
-            form.setSpacing(10)
+            form.setSpacing(12)
+            form.setContentsMargins(14, 18, 14, 14)
             form.setLabelAlignment(Qt.AlignRight)
 
             enabled = QCheckBox("Enable mouse-to-stick")
@@ -633,6 +787,7 @@ class ProfileEditorDialog(QDialog):
             key_btn.key_captured.connect(lambda name, b=key_btn: b.set_key(name))
 
             sens_val    = QLabel(str(getattr(mc, f"{prefix}_sensitivity")))
+            sens_val.setStyleSheet("color:#a78bfa; font-weight:700; min-width:36px;")
             sens_slider = QSlider(Qt.Horizontal)
             sens_slider.setRange(10, 2000)
             sens_slider.setValue(getattr(mc, f"{prefix}_sensitivity"))
@@ -641,13 +796,16 @@ class ProfileEditorDialog(QDialog):
             sens_row = QWidget()
             sens_h   = QHBoxLayout(sens_row)
             sens_h.setContentsMargins(0, 0, 0, 0)
+            sens_h.setSpacing(8)
             sens_h.addWidget(sens_slider, 1)
             sens_h.addWidget(sens_val)
-            sens_h.addWidget(QLabel("px"))
+            px_lbl = QLabel("px")
+            px_lbl.setStyleSheet("color:#475569; font-size:11px;")
+            sens_h.addWidget(px_lbl)
 
-            form.addRow("",             enabled)
-            form.addRow("Hold key:",    key_btn)
-            form.addRow("Sensitivity:", sens_row)
+            form.addRow(self._field_label(""), enabled)
+            form.addRow(self._field_label("Hold key:"),    key_btn)
+            form.addRow(self._field_label("Sensitivity:"), sens_row)
 
             self._mouse_widgets[f"{prefix}_enabled"]     = enabled
             self._mouse_widgets[f"{prefix}_key"]         = key_btn
@@ -655,32 +813,43 @@ class ProfileEditorDialog(QDialog):
 
             vbox.addWidget(gb)
 
+        vbox.addWidget(self._hint(
+            "◈  Hold the configured key while moving the mouse to steer the analog stick."
+            "  Sensitivity = pixels needed for full deflection (lower = faster)."
+        ))
         vbox.addStretch()
         return w
 
     def _make_device_tab(self) -> QWidget:
         w    = QWidget()
-        form = QFormLayout(w)
-        form.setContentsMargins(16, 16, 16, 16)
-        form.setSpacing(10)
-        form.setLabelAlignment(Qt.AlignRight)
+        vbox = QVBoxLayout(w)
+        vbox.setContentsMargins(16, 16, 16, 16)
+        vbox.setSpacing(12)
         dc   = self._profile.device
+
+        gb   = QGroupBox("⬡  Virtual Gamepad Identity")
+        form = QFormLayout(gb)
+        form.setSpacing(12)
+        form.setContentsMargins(14, 18, 14, 14)
+        form.setLabelAlignment(Qt.AlignRight)
 
         name_edit    = QLineEdit(dc.name)
         vendor_spin  = QSpinBox(); vendor_spin.setRange(0, 0xFFFF);  vendor_spin.setValue(dc.vendor)
         product_spin = QSpinBox(); product_spin.setRange(0, 0xFFFF); product_spin.setValue(dc.product)
         version_spin = QSpinBox(); version_spin.setRange(0, 0xFFFF); version_spin.setValue(dc.version)
 
-        form.addRow("Device name:", name_edit)
-        form.addRow("Vendor ID:",   vendor_spin)
-        form.addRow("Product ID:",  product_spin)
-        form.addRow("Version:",     version_spin)
-        form.addRow("", QLabel(
-            "<small style='color:#8b949e'>"
-            "Default mimics Microsoft Xbox One pad (045E:02D1).<br>"
-            "Change if a game rejects the default identity."
-            "</small>"
+        form.addRow(self._field_label("Device name:"), name_edit)
+        form.addRow(self._field_label("Vendor ID:"),   vendor_spin)
+        form.addRow(self._field_label("Product ID:"),  product_spin)
+        form.addRow(self._field_label("Version:"),     version_spin)
+
+        vbox.addWidget(gb)
+        vbox.addWidget(self._hint(
+            "⬡  Default identity mimics a Microsoft Xbox One pad (045E:02D1).\n"
+            "If a game rejects the pad, change Vendor/Product to match a controller it already supports.\n"
+            "Set both to 0 for a generic HID gamepad."
         ))
+        vbox.addStretch()
 
         self._device_widgets = {
             "name": name_edit, "vendor": vendor_spin,
@@ -690,30 +859,39 @@ class ProfileEditorDialog(QDialog):
 
     def _make_options_tab(self) -> QWidget:
         w    = QWidget()
-        form = QFormLayout(w)
-        form.setContentsMargins(16, 16, 16, 16)
-        form.setSpacing(10)
-        form.setLabelAlignment(Qt.AlignRight)
+        vbox = QVBoxLayout(w)
+        vbox.setContentsMargins(16, 16, 16, 16)
+        vbox.setSpacing(12)
         p    = self._profile
+
+        gb   = QGroupBox("⚙  Profile Settings")
+        form = QFormLayout(gb)
+        form.setSpacing(12)
+        form.setContentsMargins(14, 18, 14, 14)
+        form.setLabelAlignment(Qt.AlignRight)
 
         display_edit = QLineEdit(p.display_name)
 
         delay_spin = QSpinBox()
         delay_spin.setRange(0, 5000)
-        delay_spin.setSuffix(" ms")
+        delay_spin.setSuffix("  ms")
         delay_spin.setValue(p.startup_delay_ms)
 
-        grab_chk = QCheckBox("Grab input devices (exclusive access)")
+        grab_chk = QCheckBox("Grab input devices  (exclusive access)")
         grab_chk.setChecked(p.grab)
 
-        form.addRow("Display name:",  display_edit)
-        form.addRow("Startup delay:", delay_spin)
-        form.addRow("",               grab_chk)
-        form.addRow("", QLabel(
-            "<small style='color:#8b949e'>"
-            "Grab prevents other apps from reading keyboard/mouse while active."
-            "</small>"
+        form.addRow(self._field_label("Display name:"),  display_edit)
+        form.addRow(self._field_label("Startup delay:"), delay_spin)
+        form.addRow(self._field_label(""),               grab_chk)
+
+        vbox.addWidget(gb)
+        vbox.addWidget(self._hint(
+            "⚙  Startup delay — wait before the virtual pad becomes active (useful for games "
+            "that scan controllers at launch).\n\n"
+            "Grab — prevents other apps from reading the keyboard/mouse while active. "
+            "Recommended for full immersion; disable if you need global hotkeys."
         ))
+        vbox.addStretch()
 
         self._opt_widgets = {
             "display_name":     display_edit,
@@ -763,30 +941,81 @@ class ProfileEditorDialog(QDialog):
 class NewProfileDialog(QDialog):
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
-        self.setWindowTitle("New profile")
-        self.setFixedWidth(380)
+        self.setWindowTitle("＋  New Profile")
+        self.setFixedWidth(420)
 
-        form = QFormLayout(self)
-        form.setContentsMargins(16, 16, 16, 12)
-        form.setSpacing(10)
+        root = QVBoxLayout(self)
+        root.setContentsMargins(20, 20, 20, 16)
+        root.setSpacing(14)
+
+        # Header
+        header = QLabel("＋  Create Profile")
+        header.setStyleSheet(
+            "font-size:15px; font-weight:800; color:#a78bfa; letter-spacing:1px;"
+        )
+        root.addWidget(header)
+
+        sep = QFrame(); sep.setFrameShape(QFrame.HLine)
+        root.addWidget(sep)
+
+        # Form
+        form = QFormLayout()
+        form.setSpacing(12)
         form.setLabelAlignment(Qt.AlignRight)
 
         self._id_edit    = QLineEdit()
         self._name_edit  = QLineEdit()
         self._clone_edit = QLineEdit()
 
-        self._id_edit.setPlaceholderText("e.g. elden_ring  (a-z, 0-9, _, -)")
+        self._id_edit.setPlaceholderText("e.g. elden_ring   (a-z  0-9  _  -)")
         self._name_edit.setPlaceholderText("e.g. Elden Ring")
-        self._clone_edit.setPlaceholderText("leave empty for default keymap")
+        self._clone_edit.setPlaceholderText("leave empty to start from defaults")
 
-        form.addRow("Profile ID:",    self._id_edit)
-        form.addRow("Display name:",  self._name_edit)
-        form.addRow("Clone from ID:", self._clone_edit)
+        def _lbl(t):
+            l = QLabel(t)
+            l.setStyleSheet("color:#94a3b8; font-size:12px; font-weight:600;")
+            return l
+
+        form.addRow(_lbl("⬡  Profile ID:"),    self._id_edit)
+        form.addRow(_lbl("✎  Display name:"),  self._name_edit)
+        form.addRow(_lbl("⊕  Clone from ID:"), self._clone_edit)
+        root.addLayout(form)
+
+        # Hint
+        hint = QLabel(
+            "Profile ID is used internally (no spaces). Display name is shown in the list."
+        )
+        hint.setWordWrap(True)
+        hint.setStyleSheet(
+            "color:#4b4b7a; font-size:11px; padding:8px 10px;"
+            "background:#0c0c1a; border-radius:6px; border:1px solid #1e1e38;"
+        )
+        root.addWidget(hint)
+
+        root.addStretch()
+
+        sep2 = QFrame(); sep2.setFrameShape(QFrame.HLine)
+        root.addWidget(sep2)
 
         bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        ok_btn     = bb.button(QDialogButtonBox.Ok)
+        cancel_btn = bb.button(QDialogButtonBox.Cancel)
+        ok_btn.setText("＋  Create")
+        cancel_btn.setText("✕  Cancel")
+        ok_btn.setStyleSheet(
+            "QPushButton { background:#5b21b6; border:1.5px solid #8b5cf6;"
+            " color:#fff; font-weight:700; padding:6px 20px; border-radius:7px;}"
+            "QPushButton:hover { background:#6d28d9; border-color:#a78bfa;}"
+            "QPushButton:pressed { background:#4c1d95;}"
+        )
+        cancel_btn.setStyleSheet(
+            "QPushButton { background:#1e1e38; border:1.5px solid #2c2c50;"
+            " color:#94a3b8; font-weight:600; padding:6px 20px; border-radius:7px;}"
+            "QPushButton:hover { background:#252548; color:#e2e8f0;}"
+        )
         bb.accepted.connect(self._on_ok)
         bb.rejected.connect(self.reject)
-        form.addRow(bb)
+        root.addWidget(bb)
 
     def _on_ok(self) -> None:
         pid = self._id_edit.text().strip()
@@ -817,47 +1046,78 @@ class NewProfileDialog(QDialog):
 class AboutDialog(QDialog):
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
-        self.setWindowTitle("About Kb2Xb")
-        self.setFixedSize(400, 220)
+        self.setWindowTitle("ℹ  About  Kb2Xb")
+        self.setFixedSize(460, 290)
 
         vbox = QVBoxLayout(self)
-        vbox.setContentsMargins(28, 24, 28, 20)
-        vbox.setSpacing(8)
+        vbox.setContentsMargins(32, 28, 32, 22)
+        vbox.setSpacing(0)
 
         title = QLabel("Kb2Xb")
-        title.setStyleSheet("font-size: 22px; font-weight: 700; color: #58a6ff;")
+        title.setStyleSheet(
+            "font-size:28px; font-weight:800; color:#a78bfa; letter-spacing:3px;"
+        )
         title.setAlignment(Qt.AlignCenter)
+        vbox.addWidget(title)
 
-        sub = QLabel(f"v{__version__}  —  Keyboard + Mouse → Xbox One gamepad")
-        sub.setStyleSheet("color: #8b949e; font-size: 12px;")
+        sub = QLabel(f"v{__version__}  ·  Keyboard + Mouse  →  Xbox One gamepad")
+        sub.setStyleSheet("color:#6d6d9e; font-size:11px; font-style:italic;")
         sub.setAlignment(Qt.AlignCenter)
+        vbox.addWidget(sub)
+
+        vbox.addSpacing(14)
+        sep = QFrame(); sep.setFrameShape(QFrame.HLine)
+        vbox.addWidget(sep)
+        vbox.addSpacing(12)
 
         desc = QLabel(
-            "Maps any keyboard (and optionally a mouse) to a virtual Xbox One "
-            "controller via evdev/uinput.  Works on Wayland and X11 with no "
-            "configuration inside the game."
+            "Maps any keyboard (and optionally mouse) to a virtual Xbox One "
+            "controller via evdev/uinput — no game configuration required. "
+            "Works on Wayland and X11."
         )
         desc.setWordWrap(True)
-        desc.setStyleSheet("color: #c9d1d9; font-size: 12px; padding-top: 6px;")
+        desc.setStyleSheet("color:#cbd5e1; font-size:12px; line-height:1.6;")
         desc.setAlignment(Qt.AlignCenter)
+        vbox.addWidget(desc)
+
+        vbox.addSpacing(10)
+
+        author = QLabel(
+            "<span style='color:#475569'>by </span>"
+            "<a style='color:#a78bfa;text-decoration:none;font-weight:700' "
+            "href='https://github.com/janyel-lima'>Janyel Lima</a>"
+        )
+        author.setOpenExternalLinks(True)
+        author.setAlignment(Qt.AlignCenter)
+        author.setStyleSheet("font-size:12px;")
+        vbox.addWidget(author)
+
+        vbox.addSpacing(6)
 
         link = QLabel(
-            "<a style='color:#58a6ff' href='https://github.com/janyel-lima/kb2xb'>"
-            "github.com/yourname/kb2xb</a>"
+            "<a style='color:#6d6d9e;text-decoration:none;font-size:11px' "
+            "href='https://github.com/janyel-lima/kb2xb'>"
+            "⇗  github.com/janyel-lima/kb2xb</a>"
         )
         link.setOpenExternalLinks(True)
         link.setAlignment(Qt.AlignCenter)
-        link.setStyleSheet("padding-top: 4px;")
+        vbox.addWidget(link)
+
+        vbox.addStretch()
+
+        sep2 = QFrame(); sep2.setFrameShape(QFrame.HLine)
+        vbox.addWidget(sep2)
+        vbox.addSpacing(10)
 
         bb = QDialogButtonBox(QDialogButtonBox.Close)
+        close_btn = bb.button(QDialogButtonBox.Close)
+        close_btn.setText("✕  Close")
+        close_btn.setStyleSheet(
+            "QPushButton { background:#1e1e38; border:1.5px solid #2c2c50;"
+            " color:#94a3b8; font-weight:600; padding:6px 20px; border-radius:7px;}"
+            "QPushButton:hover { background:#252548; color:#e2e8f0;}"
+        )
         bb.rejected.connect(self.reject)
-
-        vbox.addWidget(title)
-        vbox.addWidget(sub)
-        vbox.addWidget(_h_sep())
-        vbox.addWidget(desc)
-        vbox.addWidget(link)
-        vbox.addStretch()
         vbox.addWidget(bb)
 
 
@@ -867,7 +1127,7 @@ class AboutDialog(QDialog):
 class MainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
-        self.setWindowTitle(f"Kb2Xb  v{__version__}")
+        self.setWindowTitle(f"Kb2Xb  —  v{__version__}")
         self.setMinimumSize(680, 480)
 
         ProfileManager.ensure_defaults()
@@ -902,7 +1162,7 @@ class MainWindow(QMainWindow):
 
         splitter.addWidget(self._build_left_panel())
         splitter.addWidget(self._build_right_panel())
-        splitter.setSizes([280, 400])
+        splitter.setSizes([300, 420])
         splitter.setStretchFactor(1, 1)
 
         root.addWidget(splitter, 1)
@@ -911,10 +1171,10 @@ class MainWindow(QMainWindow):
     def _build_left_panel(self) -> QWidget:
         w    = QWidget()
         vbox = QVBoxLayout(w)
-        vbox.setContentsMargins(12, 12, 6, 12)
-        vbox.setSpacing(6)
+        vbox.setContentsMargins(16, 16, 8, 16)
+        vbox.setSpacing(10)
 
-        vbox.addWidget(_section("Profiles"))
+        vbox.addWidget(_section("⊟  Profiles"))
 
         self._profile_list = QListWidget()
         self._profile_list.setSelectionMode(QAbstractItemView.SingleSelection)
@@ -922,9 +1182,9 @@ class MainWindow(QMainWindow):
         vbox.addWidget(self._profile_list, 1)
 
         btns = QHBoxLayout()
-        btns.setSpacing(4)
-        for label, slot in [("New", self._on_new), ("Clone", self._on_clone),
-                             ("Edit", self._on_edit), ("Delete", self._on_delete)]:
+        btns.setSpacing(6)
+        for label, slot in [("＋  New", self._on_new), ("⊕  Clone", self._on_clone),
+                             ("✎  Edit", self._on_edit), ("✕  Delete", self._on_delete)]:
             b = QPushButton(label)
             b.setObjectName("btn_sm")
             b.clicked.connect(slot)
@@ -936,30 +1196,33 @@ class MainWindow(QMainWindow):
     def _build_right_panel(self) -> QWidget:
         w    = QWidget()
         vbox = QVBoxLayout(w)
-        vbox.setContentsMargins(6, 12, 12, 12)
-        vbox.setSpacing(6)
+        vbox.setContentsMargins(8, 16, 16, 16)
+        vbox.setSpacing(10)
 
-        vbox.addWidget(_section("Input Devices"))
+        vbox.addWidget(_section("⌨  Input Devices"))
 
         self._kb_list = QListWidget()
         self._kb_list.setSelectionMode(QAbstractItemView.NoSelection)
         self._kb_list.itemChanged.connect(self._on_kb_check)
         vbox.addWidget(self._kb_list, 1)
 
-        refresh_btn = QPushButton("Refresh devices")
+        refresh_btn = QPushButton("↺  Refresh Devices")
         refresh_btn.setObjectName("btn_sm")
         refresh_btn.clicked.connect(self._refresh_devices)
         vbox.addWidget(refresh_btn)
 
+        vbox.addSpacing(4)
         vbox.addWidget(_h_sep())
+        vbox.addSpacing(4)
 
         # ── Status ─────────────────────────────────────────────────────
         status_row = QHBoxLayout()
-        self._status_dot = QLabel("●")
+        status_row.setSpacing(10)
+        self._status_dot = QLabel("⬤")
         self._status_dot.setObjectName("lbl_dot")
-        self._status_dot.setStyleSheet("color: #484f58;")
+        self._status_dot.setStyleSheet("color: #334155;")
         self._status_lbl = QLabel("Stopped")
-        self._status_lbl.setStyleSheet("color: #8b949e;")
+        self._status_lbl.setStyleSheet("color: #475569; font-size: 12px; font-weight: 600;")
         status_row.addWidget(self._status_dot)
         status_row.addWidget(self._status_lbl, 1)
         vbox.addLayout(status_row)
@@ -968,19 +1231,18 @@ class MainWindow(QMainWindow):
 
     def _build_bottom_bar(self) -> QWidget:
         bar  = QWidget()
-        bar.setStyleSheet("background: #161b22; border-top: 1px solid #21262d;")
+        bar.setStyleSheet("background: #0c0c1a; border-top: 1px solid #1e1e38;")
         hbox = QHBoxLayout(bar)
-        hbox.setContentsMargins(12, 10, 12, 10)
-        hbox.setSpacing(8)
+        hbox.setContentsMargins(16, 12, 16, 12)
+        hbox.setSpacing(10)
 
-        self._primary_btn = QPushButton("START")
+        self._primary_btn = QPushButton("▶  START")
         self._primary_btn.setObjectName("btn_primary")
-        self._primary_btn.setProperty("mode", "start")
         self._primary_btn.clicked.connect(self._on_primary)
 
-        self._stop_btn = QPushButton("STOP")
+        self._stop_btn = QPushButton("■  STOP")
         self._stop_btn.setObjectName("btn_stop")
-        self._stop_btn.setEnabled(False)
+        self._set_stop(False)
         self._stop_btn.clicked.connect(self._on_stop)
 
         hbox.addWidget(self._primary_btn, 3)
@@ -989,18 +1251,18 @@ class MainWindow(QMainWindow):
 
     def _build_tray(self) -> None:
         self._tray = QSystemTrayIcon(self)
-        self._tray.setIcon(_dot_icon("#484f58"))
+        self._tray.setIcon(_dot_icon("#334155"))
         self._tray.setToolTip("Kb2Xb — stopped")
 
         menu = QMenu()
         self._tray_status_action = menu.addAction("Stopped")
         self._tray_status_action.setEnabled(False)
         menu.addSeparator()
-        menu.addAction("Show", self._show_window)
-        menu.addAction("Stop", self._on_stop)
+        menu.addAction("◻  Show window", self._show_window)
+        menu.addAction("■  Stop", self._on_stop)
         menu.addSeparator()
-        menu.addAction(f"About  (v{__version__})", self._show_about)
-        menu.addAction("Quit", self._quit)
+        menu.addAction(f"ℹ  About  v{__version__}", self._show_about)
+        menu.addAction("⏻  Quit", self._quit)
         self._tray.setContextMenu(menu)
         self._tray.activated.connect(self._on_tray_activated)
         self._tray.show()
@@ -1008,58 +1270,120 @@ class MainWindow(QMainWindow):
     # ── Status helpers ────────────────────────────────────────────────────────
 
     def _set_running_status(self, profile_name: str) -> None:
-        self._status_dot.setStyleSheet("color: #3fb950;")
+        self._status_dot.setStyleSheet("color: #86efac;")
         self._status_lbl.setText(f"Running  ·  {profile_name}")
-        self._status_lbl.setStyleSheet("color: #3fb950;")
+        self._status_lbl.setStyleSheet("color: #86efac; font-size: 12px; font-weight: 600;")
 
     def _set_stopped_status(self) -> None:
-        self._status_dot.setStyleSheet("color: #484f58;")
+        self._status_dot.setStyleSheet("color: #334155;")
         self._status_lbl.setText("Stopped")
-        self._status_lbl.setStyleSheet("color: #8b949e;")
+        self._status_lbl.setStyleSheet("color: #475569; font-size: 12px; font-weight: 600;")
 
     def _set_error_status(self) -> None:
-        self._status_dot.setStyleSheet("color: #f85149;")
+        self._status_dot.setStyleSheet("color: #f87171;")
         self._status_lbl.setText("Error — see dialog")
-        self._status_lbl.setStyleSheet("color: #f85149;")
+        self._status_lbl.setStyleSheet("color: #f87171; font-size: 12px; font-weight: 600;")
         self._running           = False
         self._active_profile_id = None
-        self._stop_btn.setEnabled(False)
+        self._set_stop(False)
         self._refresh_profile_list_style()
         self._update_primary_btn()
         self._update_tray(False)
 
     def _set_swapping_status(self) -> None:
-        self._status_dot.setStyleSheet("color: #d29922;")
+        self._status_dot.setStyleSheet("color: #fbbf24;")
         self._status_lbl.setText("Swapping profile…")
-        self._status_lbl.setStyleSheet("color: #d29922;")
+        self._status_lbl.setStyleSheet("color: #fbbf24; font-size: 12px; font-weight: 600;")
 
     def _update_tray(self, running: bool, profile_name: str = "") -> None:
         if running:
-            self._tray.setIcon(_dot_icon("#3fb950"))
+            self._tray.setIcon(_dot_icon("#86efac"))
             self._tray.setToolTip(f"Kb2Xb — {profile_name}")
             self._tray_status_action.setText(f"Running: {profile_name}")
         else:
-            self._tray.setIcon(_dot_icon("#484f58"))
+            self._tray.setIcon(_dot_icon("#334155"))
             self._tray.setToolTip("Kb2Xb — stopped")
             self._tray_status_action.setText("Stopped")
+
+    # ── Button style constants ─────────────────────────────────────────────
+    _BTN_START = (
+        "QPushButton {"
+        "  background: #7c3aed;"
+        "  border: 1.5px solid #a78bfa;"
+        "  color: #ffffff;"
+        "}"
+        "QPushButton:hover {"
+        "  background: #8b5cf6;"
+        "  border-color: #c4b5fd;"
+        "}"
+        "QPushButton:pressed {"
+        "  background: #6d28d9;"
+        "}"
+    )
+    _BTN_HOTSWAP = (
+        "QPushButton {"
+        "  background: #d97706;"
+        "  border: 1.5px solid #fbbf24;"
+        "  color: #ffffff;"
+        "}"
+        "QPushButton:hover {"
+        "  background: #f59e0b;"
+        "  border-color: #fde68a;"
+        "}"
+        "QPushButton:pressed {"
+        "  background: #b45309;"
+        "}"
+    )
+    _BTN_RUNNING = (
+        "QPushButton {"
+        "  background: #12122a;"
+        "  border: 1.5px solid #2c2c50;"
+        "  color: #4b4b7a;"
+        "  letter-spacing: 1.5px;"
+        "}"
+    )
+    _BTN_STOP_ON = (
+        "QPushButton {"
+        "  background: #dc2626;"
+        "  border: 1.5px solid #f87171;"
+        "  color: #ffffff;"
+        "}"
+        "QPushButton:hover {"
+        "  background: #ef4444;"
+        "  border-color: #fca5a5;"
+        "}"
+        "QPushButton:pressed {"
+        "  background: #b91c1c;"
+        "}"
+    )
+    _BTN_STOP_OFF = (
+        "QPushButton {"
+        "  background: #12122a;"
+        "  border: 1.5px solid #2c2c50;"
+        "  color: #4b4b7a;"
+        "}"
+    )
 
     def _update_primary_btn(self) -> None:
         p = self._current_profile()
         if not self._running:
-            self._primary_btn.setText("START")
-            self._primary_btn.setProperty("mode", "start")
+            self._primary_btn.setText("▶  START")
+            self._primary_btn.setStyleSheet(self._BTN_START)
             self._primary_btn.setEnabled(True)
         elif p and p.id != self._active_profile_id:
-            self._primary_btn.setText(f"HOT-SWAP → {p.display_name}")
-            self._primary_btn.setProperty("mode", "hotswap")
+            self._primary_btn.setText(f"⇄  SWAP  →  {p.display_name}")
+            self._primary_btn.setStyleSheet(self._BTN_HOTSWAP)
             self._primary_btn.setEnabled(True)
         else:
-            self._primary_btn.setText("RUNNING")
-            self._primary_btn.setProperty("mode", "running")
+            self._primary_btn.setText("● RUNNING")
+            self._primary_btn.setStyleSheet(self._BTN_RUNNING)
             self._primary_btn.setEnabled(False)
-        _repaint_btn(self._primary_btn)
 
-    # ── Data refresh ──────────────────────────────────────────────────────────
+    def _set_stop(self, active: bool) -> None:
+        self._stop_btn.setEnabled(active)
+        self._stop_btn.setStyleSheet(
+            self._BTN_STOP_ON if active else self._BTN_STOP_OFF
+        )
 
     def _refresh_profiles(self) -> None:
         self._profiles = ProfileManager.list_all()
@@ -1072,10 +1396,10 @@ class MainWindow(QMainWindow):
         self._profile_list.clear()
         for p in self._profiles:
             is_active = self._running and p.id == self._active_profile_id
-            label     = f"{'▶  ' if is_active else '    '}{p.display_name}   [{p.id}]"
+            label     = f"{'▶  ' if is_active else '    '}{p.display_name}  ·  {p.id}"
             item      = QListWidgetItem(label)
             if is_active:
-                item.setForeground(QColor("#3fb950"))
+                item.setForeground(QColor("#86efac"))
             self._profile_list.addItem(item)
         if 0 <= row < len(self._profiles):
             self._profile_list.setCurrentRow(row)
@@ -1098,22 +1422,22 @@ class MainWindow(QMainWindow):
         if not self._keyboards:
             item = QListWidgetItem("⚠  No keyboards found in /dev/input/")
             item.setFlags(Qt.NoItemFlags)
-            item.setForeground(QColor("#f85149"))
+            item.setForeground(QColor("#f87171"))
             self._kb_list.addItem(item)
         else:
             for dev in self._keyboards:
-                item = QListWidgetItem(f"{dev.name}  ({dev.path})")
+                item = QListWidgetItem(f"⌨  {dev.name}    {dev.path}")
                 item.setData(Qt.UserRole, dev)
                 item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
                 item.setCheckState(Qt.Checked if dev.path in prefs else Qt.Unchecked)
                 self._kb_list.addItem(item)
 
         if self._mice:
-            sep = QListWidgetItem(f"🖱  {len(self._mice)} mouse device(s) detected")
+            sep = QListWidgetItem(f"◈  {len(self._mice)} mouse device(s) detected")
         else:
-            sep = QListWidgetItem("🖱  No mouse detected")
+            sep = QListWidgetItem("◈  No mouse detected")
         sep.setFlags(Qt.NoItemFlags)
-        sep.setForeground(QColor("#8b949e" if self._mice else "#484f58"))
+        sep.setForeground(QColor("#475569" if self._mice else "#334155"))
         self._kb_list.addItem(sep)
 
         self._kb_list.blockSignals(False)
@@ -1228,7 +1552,7 @@ class MainWindow(QMainWindow):
             self._hotswap_pending = True
             self._set_swapping_status()
             self._primary_btn.setEnabled(False)
-            self._stop_btn.setEnabled(False)
+            self._set_stop(False)
             self._on_stop()
         else:
             self._do_start()
@@ -1253,7 +1577,7 @@ class MainWindow(QMainWindow):
 
         self._running           = True
         self._active_profile_id = p.id
-        self._stop_btn.setEnabled(True)
+        self._set_stop(True)
         self._set_running_status(p.display_name)
         self._update_tray(True, p.display_name)
         self._refresh_profile_list_style()
@@ -1291,7 +1615,7 @@ class MainWindow(QMainWindow):
 
         self._running           = False
         self._active_profile_id = None
-        self._stop_btn.setEnabled(False)
+        self._set_stop(False)
         self._refresh_profile_list_style()
 
         if self._hotswap_pending:
