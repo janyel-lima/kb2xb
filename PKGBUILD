@@ -1,7 +1,7 @@
 # Maintainer: Janyel Lima <janyel-lima@users.noreply.github.com>
 
 pkgname=kb2xb
-pkgver=1.0.1
+pkgver=1.1.0
 pkgrel=1
 pkgdesc="Keyboard + mouse → Xbox One virtual gamepad (evdev/uinput, Wayland & X11, profile-based)"
 arch=('any')
