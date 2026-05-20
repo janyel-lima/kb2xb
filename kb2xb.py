@@ -7,7 +7,7 @@ https://github.com/janyel-lima/kb2xb
 """
 from __future__ import annotations
 
-__version__ = "1.0.1"
+__version__ = "1.1.0"
 __author__  = "Janyel Lima"
 __license__ = "MIT"
 
