@@ -178,7 +178,7 @@ The GUI window shows:
 
 - **Left panel** — profile list with New / Clone / Edit / Delete buttons
 - **Right panel** — detected keyboards (check the ones to use), status dot, Start/Stop
-- **System tray** — green when active; right-click for quick Stop/Quit
+- **System tray** — colored icon when active; right-click for quick Stop/Quit
 
 Closing the window minimises to tray. The emulator keeps running.
 
@@ -363,6 +363,71 @@ systemctl --user status kb2xb.service
 
 ---
 
+## Publishing a new release (AUR)
+
+This section is for maintainers. The PKGBUILD and .SRCINFO live exclusively in the [AUR repository](https://aur.archlinux.org/packages/kb2xb) and are **not** tracked here.
+
+### Release checklist
+
+**1 — Bump the version**
+
+In `kb2xb.py`:
+
+```python
+__version__ = "x.y.z"
+```
+
+Version scheme (SemVer):
+
+| Change                                | Bump                      |
+| ------------------------------------- | ------------------------- |
+| Bug fix, string tweak, visual patch   | `PATCH` — `1.0.0 → 1.0.1` |
+| New feature, no breaking change       | `MINOR` — `1.0.1 → 1.1.0` |
+| Breaking change (e.g. profile format) | `MAJOR` — `1.1.0 → 2.0.0` |
+
+**2 — Commit and push to GitHub**
+
+```bash
+git add kb2xb.py kb2xb_gui.py   # (and any other changed files)
+git commit -m "feat: short description"
+git push
+```
+
+**3 — Create the GitHub release**
+
+Go to `github.com/janyel-lima/kb2xb` → **Releases** → **Draft a new release**:
+
+- Tag: `vx.y.z` (create new)
+- Title: `Kb2Xb vx.y.z — Short title`
+- Description: release notes
+- ✅ Set as latest release
+
+**4 — Update the AUR package**
+
+```bash
+cd kb2xb   # repo root
+
+# Edit PKGBUILD: bump pkgver=x.y.z and reset pkgrel=1
+nano PKGBUILD
+
+# Fetch new tarball and regenerate sha256
+updpkgsums
+
+# Regenerate .SRCINFO
+makepkg --printsrcinfo > .SRCINFO
+
+# Push to AUR (PKGBUILD and .SRCINFO live only in the AUR repo)
+cp PKGBUILD .SRCINFO ../aur-kb2xb/
+cd ../aur-kb2xb
+git add PKGBUILD .SRCINFO
+git commit -m "upgpkg: kb2xb x.y.z-1 — short description"
+git push
+```
+
+> **pkgrel** only: if you fix the PKGBUILD itself without bumping the software version, increment `pkgrel` (`1 → 2`) and keep `pkgver` unchanged.
+
+---
+
 ## Troubleshooting
 
 ### "Permission denied" / uinput not writable
@@ -443,7 +508,6 @@ kb2xb/                          ← project source
     icon.svg                    ← source icon (installed as kb2xb.svg)
     kb2xb.desktop
     kb2xb.install               ← pacman post-install hooks
-    PKGBUILD
     install.sh
     uninstall.sh
     completions/
